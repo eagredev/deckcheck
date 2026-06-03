@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.eagredev.deckcheck</id>
+
+  <name>deckcheck</name>
+  <summary>Friendly health check for your Steam Deck</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+
+  <developer id="io.github.eagredev">
+    <name>Dylan Moir</name>
+  </developer>
+
+  <description>
+    <p>
+      deckcheck tells you, in plain English, whether your Steam Deck is healthy,
+      and what to do about it if something is off. No terminal required.
+    </p>
+    <p>
+      Press one button and it checks the things that actually matter: temperature,
+      processor activity, disk activity, free storage, battery health, the program
+      using your disk the most, and KDE's file indexer (a common cause of a warm,
+      busy Deck at idle). Each result is colour-coded and explained in everyday
+      language.
+    </p>
+    <p>
+      When something needs attention, deckcheck doesn't just say "investigate", it
+      explains what the thing is, gives step-by-step guidance, and where it's safe,
+      offers a one-click fix. Every fix asks you to confirm first, tells you how to
+      undo it, and only ever does safe, reversible things.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.eagredev.deckcheck.desktop</launchable>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#b9d2f2</color>
+    <color type="primary" scheme_preference="dark">#0d3d8f</color>
+  </branding>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>deckcheck showing a healthy Steam Deck</caption>
+      <image>https://raw.githubusercontent.com/eagredev/deckcheck/v0.1.4/docs/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://github.com/eagredev/deckcheck</url>
+  <url type="bugtracker">https://github.com/eagredev/deckcheck/issues</url>
+
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+    <category>Monitor</category>
+  </categories>
+
+  <keywords>
+    <keyword>steam deck</keyword>
+    <keyword>health</keyword>
+    <keyword>diagnostics</keyword>
+    <keyword>temperature</keyword>
+    <keyword>battery</keyword>
+    <keyword>system monitor</keyword>
+  </keywords>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="0.1.4" date="2026-06-03">
+      <description>
+        <p>Wording polish across the app's messages. No change to how it works.</p>
+      </description>
+    </release>
+    <release version="0.1.3" date="2026-06-03">
+      <description>
+        <p>Internal quality pass: a unit-tested health-check engine and continuous
+        integration, with no change to how the app looks or behaves.</p>
+      </description>
+    </release>
+    <release version="0.1.2" date="2026-06-03">
+      <description>
+        <p>A wider, two-column window that shows every check at a glance without
+        scrolling, plus the Flatpak sandbox hardening from 0.1.1.</p>
+      </description>
+    </release>
+    <release version="0.1.1" date="2026-06-03">
+      <description>
+        <p>Packaging hardening for Flatpak: the app now runs in a much tighter
+        sandbox (no broad filesystem access), reads sensors directly from the
+        system, and degrades gracefully if its one system-access permission is
+        turned off, the read-only checks keep working and fixes explain how to
+        re-enable access.</p>
+      </description>
+    </release>
+    <release version="0.1.0" date="2026-06-03">
+      <description>
+        <p>First release: seven plain-English health checks with safe, reversible
+        one-click fixes, in a native Qt desktop app.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,78 @@
+app-id: io.github.eagredev.deckcheck
+runtime: org.kde.Platform
+runtime-version: '6.10'
+sdk: org.kde.Sdk
+command: deckcheck
+
+finish-args:
+  # A windowed Qt app: display socket + GPU.
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+
+  # The one privileged permission: --talk-name=org.freedesktop.Flatpak, which
+  # enables `flatpak-spawn --host`. This runs arbitrary host commands, so it is in
+  # effect a full sandbox escape, the limited set of commands deckcheck runs is a
+  # property of its code, not a constraint the sandbox imposes. A system diagnostic
+  # has no sandboxed alternative, the same grounds on which the system monitor
+  # Mission Center (io.missioncenter.MissionCenter) carries the identical flag:
+  #   * No portal covers it. A sandbox's PID namespace hides host processes, and
+  #     host daemons like the KDE file indexer aren't reachable either; no XDG
+  #     portal exposes host process info or controls the indexer.
+  #   * The usage is small and auditable. Every host call is a fixed command, `ps`,
+  #     `df`, a no-input /proc read for per-process writes, and (only on explicit
+  #     per-action confirmation) the user's own tools `balooctl` / `kill -15` /
+  #     `xdg-open`. Nothing is bundled or installed; no untrusted input reaches a
+  #     shell. Call sites are in gui/checks.py (_run / _run_full / _scan_top_writer).
+  #   * Nothing else broad is requested: no --filesystem of any kind (temps/fan/
+  #     battery/disk read from the /sys and /proc read-only mounts), no --device=all,
+  #     no broad --socket=session-bus. Tighter than Mission Center, which has both.
+  # Revoking it in Flatseal degrades gracefully, read-only checks keep working and
+  # the rest explains how to re-enable it; the permission is an enhancement, not a
+  # load-bearing escape.
+  - --talk-name=org.freedesktop.Flatpak
+
+modules:
+  # PySide6 (Qt for Python) bindings, the runtime ships Qt6 but not the Python
+  # bindings. Pinned wheels for offline, reproducible builds (Flathub requirement).
+  # Only Essentials + shiboken6 are bundled; PySide6-Addons (charts/multimedia/etc.)
+  # is intentionally omitted, deckcheck uses only QtWidgets/QtSvg/QtCore.
+  - name: python3-pyside6
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST}
+        shiboken6 PySide6-Essentials
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/be/82/c1c6932f9849bc5e75c93c38a29419505a6e3e0037261e28f3e7ecbf2751/shiboken6-6.9.3-cp39-abi3-manylinux_2_28_x86_64.whl
+        sha256: f3f5337a3a8fc660ba1462265bd9a2bdda9588f8d90fbc3d5ac4ce3134c11e59
+      - type: file
+        url: https://files.pythonhosted.org/packages/85/e8/9396cf11a60f80175bb3c5c1d498d84e87b7af653ab4ea001acf821a3981/pyside6_essentials-6.9.3-cp39-abi3-manylinux_2_28_x86_64.whl
+        sha256: c70d5544e892b201a677b615156fab6a0fef865e7fc287f55a0eae00a682e83f
+
+  # deckcheck itself: the GUI + checks engine, a launcher on PATH, desktop file,
+  # icons, and AppStream metainfo.
+  - name: deckcheck
+    buildsystem: simple
+    build-commands:
+      # App code into a private libexec dir.
+      - mkdir -p ${FLATPAK_DEST}/share/deckcheck
+      - cp -r gui/checks.py gui/deckcheck_gui.py gui/deckcheck.svg ${FLATPAK_DEST}/share/deckcheck/
+      # Launcher on PATH (matches `command: deckcheck`).
+      - install -Dm755 flatpak/deckcheck-launcher.sh ${FLATPAK_DEST}/bin/deckcheck
+      # Desktop entry + AppStream metainfo (renamed to the app-id).
+      - install -Dm644 flatpak/io.github.eagredev.deckcheck.desktop
+        ${FLATPAK_DEST}/share/applications/io.github.eagredev.deckcheck.desktop
+      - install -Dm644 flatpak/io.github.eagredev.deckcheck.metainfo.xml
+        ${FLATPAK_DEST}/share/metainfo/io.github.eagredev.deckcheck.metainfo.xml
+      # Icons (hicolor theme), named by app-id.
+      - for s in 16 24 32 48 64 128 256; do
+          install -Dm644 gui/icons/${s}x${s}/deckcheck.png
+          ${FLATPAK_DEST}/share/icons/hicolor/${s}x${s}/apps/io.github.eagredev.deckcheck.png;
+        done
+      - install -Dm644 gui/deckcheck.svg
+        ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.eagredev.deckcheck.svg
+    sources:
+      - type: dir
+        path: ..

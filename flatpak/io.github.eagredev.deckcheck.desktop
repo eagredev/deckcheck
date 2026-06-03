@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=deckcheck
+Comment=A friendly health check for your Steam Deck
+Exec=deckcheck
+Icon=io.github.eagredev.deckcheck
+Terminal=false
+Categories=System;Utility;Monitor;
+Keywords=steam deck;health;diagnostics;temperature;battery;
