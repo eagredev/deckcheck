@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- rounded-square app tile, Steam Deck blue -->
+  <rect width="128" height="128" rx="28" fill="#1565c0"/>
+  <!-- shield -->
+  <path d="M64 22 L100 36 V66 C100 89 83 102 64 108 C45 102 28 89 28 66 V36 Z"
+        fill="#0d3d8f"/>
+  <!-- bold check -->
+  <polyline points="47,65 59,78 83,48" fill="none" stroke="#7cc97c"
+            stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
