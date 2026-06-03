@@ -1,0 +1,26 @@
+# Diagnostic run outputs are machine- and time-specific — not source.
+# Keep the folder in the repo, ignore its contents.
+data/*
+!data/.gitkeep
+
+# Config backups are real local files (and expose home-dir paths) — keep them
+# local-only, but keep the folder so the structure + intent is documented.
+backups/*
+!backups/.gitkeep
+
+# Editor / OS noise
+*~
+.DS_Store
+
+# Python venv for the GUI (rebuilt via setup, not committed)
+.venv/
+__pycache__/
+*.pyc
+
+# Test / tooling caches
+.pytest_cache/
+
+# Flatpak build artifacts
+build-dir/
+.flatpak-builder/
+*.flatpak

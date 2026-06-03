@@ -1,0 +1,10 @@
+deckcheck
+Copyright 2026 Dylan Moir
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+deckcheck is a diagnostic toolkit for the Steam Deck. It reads system state
+(/proc, sensors) and, only with explicit user confirmation, can invoke standard
+KDE/system tools (e.g. balooctl) to apply safe, reversible fixes. It bundles no
+third-party source code. The optional GUI depends on PySide6 (Qt for Python),
+which is distributed separately under the LGPL.
