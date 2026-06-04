@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests & complexity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test tooling
+        run: pip install pytest lizard
+
+      # checks.py is pure-stdlib (no PySide6), so the unit tests run with no Qt.
+      - name: Unit tests
+        run: python -m pytest tests/ -v
+
+      # Parsing-only; doesn't import PySide6, so it's fine without Qt installed.
+      - name: Byte-compile
+        run: python -m py_compile gui/checks.py gui/deckcheck_gui.py
+
+      - name: Complexity (fail if CCN > 15)
+        run: lizard gui/checks.py gui/deckcheck_gui.py -C 15 -w
+
+  packaging:
+    name: Packaging metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate AppStream metainfo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y appstream
+          appstreamcli validate --no-net \
+            flatpak/io.github.eagredev.deckcheck.metainfo.xml
+
+  flatpak-lint:
+    name: Flatpak manifest lint
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub/flatpak-builder-lint:latest
+      options: --privileged --entrypoint=
+    steps:
+      - uses: actions/checkout@v4
+
+      # The submission manifest is what Flathub builds; lint that one. Exactly one
+      # finding is expected and justified, finish-args-flatpak-spawn-access (a
+      # system monitor needs flatpak-spawn; see flatpak/README.md). Fail the job if
+      # ANY OTHER finding appears, so a new broad permission can't slip in unnoticed.
+      - name: Lint submission manifest (allow only the justified spawn finding)
+        run: |
+          set +e
+          out=$(flatpak-builder-lint manifest \
+            flatpak/submission/io.github.eagredev.deckcheck.yml)
+          echo "$out"
+          unexpected=$(echo "$out" \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print('\n'.join(e for e in d.get('errors',[]) if e!='finish-args-flatpak-spawn-access'))")
+          if [ -n "$unexpected" ]; then
+            echo "::error::Unexpected lint findings: $unexpected"
+            exit 1
+          fi
+          echo "Only the expected, justified flatpak-spawn finding is present."
