@@ -80,4 +80,4 @@ modules:
       - type: git
         url: https://github.com/eagredev/deckcheck.git
         tag: v0.1.4
-        commit: 94b6c134b7faa18447e80e61ba59896c0fd77397
+        commit: f69139fc8be6db09c30e42d3519b92fc40a0552c
